@@ -53,14 +53,12 @@ import org.sonarsource.sonarlint.core.rpc.protocol.common.TokenDto;
 
 public class AssistSuggestConnectionJob extends AbstractAssistCreatingConnectionJob {
   private final Map<String, List<ProjectSuggestionDto>> projectMapping;
-  private final String sonarCloudRegion;
 
   public AssistSuggestConnectionJob(Either<String, String> serverUrlOrOrganization,
     Map<String, List<ProjectSuggestionDto>> projectMapping, @Nullable String sonarCloudRegion) {
     super("Connected Mode suggestion for SonarQube " + (serverUrlOrOrganization.isLeft() ? "Server" : "Cloud"),
       serverUrlOrOrganization, false, true, sonarCloudRegion);
     this.projectMapping = projectMapping;
-    this.sonarCloudRegion = sonarCloudRegion;
   }
 
   @Override

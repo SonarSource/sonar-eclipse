@@ -29,7 +29,6 @@ import org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnect
 import org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnectionModel.ConnectionType;
 import org.sonarlint.eclipse.ui.internal.util.DisplayUtils;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
-import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 
 public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
   protected final Either<String, String> serverUrlOrOrganization;
@@ -77,7 +76,7 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
       model.setServerUrl(serverUrlOrOrganization.getLeft());
     } else {
       model.setOrganization(serverUrlOrOrganization.getRight());
-      model.setSonarCloudRegion(org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnectionModel.SonarCloudRegion.valueOf(sonarCloudRegion));
+      model.setSonarCloudRegion(ServerConnectionModel.SonarCloudRegion.valueOf(sonarCloudRegion));
     }
 
     if (fromConnectionSuggestion) {

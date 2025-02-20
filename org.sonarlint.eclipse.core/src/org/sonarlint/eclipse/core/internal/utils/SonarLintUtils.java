@@ -83,7 +83,6 @@ public class SonarLintUtils {
 
   public static String getSonarCloudUrl(@Nullable String sonarCloudRegion) {
     if (sonarCloudRegion != null && sonarCloudRegion.equalsIgnoreCase("US")) {
-      // TODO change to production URL
       return "https://us.sonarcloud.io";
     } else {
       return getSonarCloudUrl();
