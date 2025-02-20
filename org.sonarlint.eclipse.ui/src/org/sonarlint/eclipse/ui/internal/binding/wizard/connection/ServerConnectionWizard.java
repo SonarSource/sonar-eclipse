@@ -42,6 +42,7 @@ import org.sonarlint.eclipse.ui.internal.binding.wizard.project.ProjectBindingWi
 import org.sonarlint.eclipse.ui.internal.util.wizard.SonarLintWizardDialog;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.check.CheckSmartNotificationsSupportedParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.org.ListUserOrganizationsParams;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 
 public class ServerConnectionWizard extends AbstractConnectionWizard {
 
@@ -290,7 +291,8 @@ public class ServerConnectionWizard extends AbstractConnectionWizard {
         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
           monitor.beginTask("Fetch organizations", IProgressMonitor.UNKNOWN);
           try {
-            var future = SonarLintBackendService.get().getBackend().getConnectionService().listUserOrganizations(new ListUserOrganizationsParams(modelToCredentialDto()));
+            var future = SonarLintBackendService.get().getBackend().getConnectionService().listUserOrganizations(new ListUserOrganizationsParams(modelToCredentialDto(),
+              model.getSonarCloudRegion() != null ? SonarCloudRegion.valueOf(model.getSonarCloudRegion().name()) : SonarCloudRegion.EU));
             var response = JobUtils.waitForFutureInIRunnableWithProgress(monitor, future);
             model.suggestOrganization(response.getUserOrganizations());
           } finally {

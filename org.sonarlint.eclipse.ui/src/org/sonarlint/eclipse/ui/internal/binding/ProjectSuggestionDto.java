@@ -38,4 +38,5 @@ public class ProjectSuggestionDto {
   public boolean getIsFromSharedConfiguration() {
     return this.isFromSharedConfiguration;
   }
+
 }

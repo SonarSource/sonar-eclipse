@@ -81,6 +81,15 @@ public class SonarLintUtils {
     return System.getProperty("sonarlint.internal.sonarcloud.url", "https://sonarcloud.io");
   }
 
+  public static String getSonarCloudUrl(@Nullable String sonarCloudRegion) {
+    if (sonarCloudRegion != null && sonarCloudRegion.equalsIgnoreCase("US")) {
+      // TODO change to production URL
+      return "https://us.sonarcloud.io";
+    } else {
+      return getSonarCloudUrl();
+    }
+  }
+
   public static boolean isSonarLintFileCandidate(IResource resource) {
     if (!resource.exists() || resource.isDerived(IResource.CHECK_ANCESTORS) || resource.isHidden(IResource.CHECK_ANCESTORS)) {
       return false;

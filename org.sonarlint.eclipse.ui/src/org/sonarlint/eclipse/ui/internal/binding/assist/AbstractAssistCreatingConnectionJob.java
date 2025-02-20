@@ -29,6 +29,7 @@ import org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnect
 import org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnectionModel.ConnectionType;
 import org.sonarlint.eclipse.ui.internal.util.DisplayUtils;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 
 public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
   protected final Either<String, String> serverUrlOrOrganization;
@@ -38,10 +39,12 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
   protected String connectionId;
   @Nullable
   protected String username;
+  @Nullable
+  protected final String sonarCloudRegion;
 
   /** Assistance either to SonarQube / SonarCloud, can be coming from Connection Suggestion! */
   protected AbstractAssistCreatingConnectionJob(String title, Either<String, String> serverUrlOrOrganization,
-    boolean automaticSetup, boolean fromConnectionSuggestion) {
+    boolean automaticSetup, boolean fromConnectionSuggestion, @Nullable String sonarCloudRegion) {
     super(title);
     // We don't want to have this job visible to the user, as there should be a dialog anyway
     setSystem(true);
@@ -49,6 +52,7 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
     this.serverUrlOrOrganization = serverUrlOrOrganization;
     this.automaticSetUp = automaticSetup;
     this.fromConnectionSuggestion = fromConnectionSuggestion;
+    this.sonarCloudRegion = sonarCloudRegion;
   }
 
   @Override
@@ -73,6 +77,7 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
       model.setServerUrl(serverUrlOrOrganization.getLeft());
     } else {
       model.setOrganization(serverUrlOrOrganization.getRight());
+      model.setSonarCloudRegion(org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnectionModel.SonarCloudRegion.valueOf(sonarCloudRegion));
     }
 
     if (fromConnectionSuggestion) {

@@ -51,14 +51,20 @@ public class ServerConnectionModel extends ModelObject {
   public static final String PROPERTY_ORGANIZATION = "organization";
   public static final String PROPERTY_CONNECTION_ID = "connectionId";
   public static final String PROPERTY_NOTIFICATIONS_ENABLED = "notificationsEnabled";
+  public static final String PROPERTY_SONARCLOUD_REGION = "sonarCloudRegion";
 
   public enum ConnectionType {
     SONARCLOUD, ONPREMISE
+  }
+  
+  public enum SonarCloudRegion {
+    EU, US
   }
 
   private final boolean edit;
   private final boolean fromConnectionSuggestion;
   private ConnectionType connectionType = ConnectionType.SONARCLOUD;
+  private SonarCloudRegion sonarCloudRegion = SonarCloudRegion.EU;
   private String connectionId;
   private String serverUrl = SonarLintUtils.getSonarCloudUrl();
   private String organization;
@@ -87,6 +93,7 @@ public class ServerConnectionModel extends ModelObject {
     this.serverUrl = connection.getHost();
     this.connectionType = SonarLintUtils.getSonarCloudUrl().equals(serverUrl) ? ConnectionType.SONARCLOUD : ConnectionType.ONPREMISE;
     this.organization = connection.getOrganization();
+    this.sonarCloudRegion = connection.getSonarCloudRegion() != null ? SonarCloudRegion.valueOf(connection.getSonarCloudRegion()) : SonarCloudRegion.EU;
     if (connection.hasAuth()) {
       try {
         this.username = ConnectionManager.getToken(connection);
@@ -117,8 +124,20 @@ public class ServerConnectionModel extends ModelObject {
     if (type == ConnectionType.ONPREMISE) {
       setServerUrl(null);
     } else {
-      setServerUrl(SonarLintUtils.getSonarCloudUrl());
+      var region = this.sonarCloudRegion.toString();
+      setServerUrl(SonarLintUtils.getSonarCloudUrl(region));
     }
+  }
+  
+  public SonarCloudRegion getSonarCloudRegion() {
+    return sonarCloudRegion;
+  }
+  
+  public void setSonarCloudRegion(SonarCloudRegion region) {
+    var old = this.sonarCloudRegion;
+    this.sonarCloudRegion = region;
+    firePropertyChange(PROPERTY_SONARCLOUD_REGION, old, this.sonarCloudRegion);
+    setServerUrl(SonarLintUtils.getSonarCloudUrl(region.name()));  
   }
 
   public String getConnectionId() {
@@ -187,7 +206,7 @@ public class ServerConnectionModel extends ModelObject {
         }
         setConnectionId(suggestedId);
       } catch (MalformedURLException e1) {
-        // Ignore, should not occurs
+        // Ignore, should not occur
       }
     }
   }

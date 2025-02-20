@@ -27,6 +27,7 @@ import org.sonarsource.sonarlint.core.rpc.protocol.SonarLintRpcServer;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.config.DidUpdateConnectionsParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.config.SonarCloudConnectionConfigurationDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.config.SonarQubeConnectionConfigurationDto;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 
 import static java.util.stream.Collectors.toList;
 
@@ -69,7 +70,7 @@ class ConnectionSynchronizer implements IConnectionManagerListener {
   static List<SonarCloudConnectionConfigurationDto> buildScConnectionDtos() {
     return SonarLintCorePlugin.getConnectionManager().getConnections().stream()
       .filter(ConnectionFacade::isSonarCloud)
-      .map(c -> new SonarCloudConnectionConfigurationDto(c.getId(), c.getOrganization(), c.areNotificationsDisabled()))
+      .map(c -> new SonarCloudConnectionConfigurationDto(c.getId(), c.getOrganization(), SonarCloudRegion.valueOf(c.getSonarCloudRegion()), c.areNotificationsDisabled()))
       .collect(toList());
   }
 }

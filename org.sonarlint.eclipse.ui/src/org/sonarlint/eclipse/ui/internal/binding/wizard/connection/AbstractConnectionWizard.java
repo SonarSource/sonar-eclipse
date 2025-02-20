@@ -51,6 +51,7 @@ import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.common.Tra
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.validate.ValidateConnectionParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.validate.ValidateConnectionResponse;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.TokenDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.UsernamePasswordDto;
 
@@ -132,7 +133,7 @@ public abstract class AbstractConnectionWizard extends Wizard implements INewWiz
 
   protected void finalizeConnectionCreation() {
     resultServer = SonarLintCorePlugin.getConnectionManager().create(model.getConnectionId(), model.getServerUrl(),
-      model.getOrganization(), model.getUsername(), model.getNotificationsDisabled());
+      model.getOrganization(), model.getSonarCloudRegion().name(), model.getUsername(), model.getNotificationsDisabled());
     SonarLintCorePlugin.getConnectionManager().addConnection(resultServer, model.getUsername());
     try {
       PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(BindingsView.ID);
@@ -184,7 +185,8 @@ public abstract class AbstractConnectionWizard extends Wizard implements INewWiz
   protected Either<TransientSonarQubeConnectionDto, TransientSonarCloudConnectionDto> modelToTransientConnectionDto() {
     var credentials = modelToCredentialDto();
     if (model.getConnectionType() == ConnectionType.SONARCLOUD) {
-      return Either.forRight(new TransientSonarCloudConnectionDto(model.getOrganization(), credentials));
+      return Either.forRight(new TransientSonarCloudConnectionDto(model.getOrganization(), credentials,
+        model.getSonarCloudRegion() != null ? SonarCloudRegion.valueOf(model.getSonarCloudRegion().name()) : SonarCloudRegion.EU));
     } else {
       return Either.forLeft(new TransientSonarQubeConnectionDto(model.getServerUrl(), credentials));
     }

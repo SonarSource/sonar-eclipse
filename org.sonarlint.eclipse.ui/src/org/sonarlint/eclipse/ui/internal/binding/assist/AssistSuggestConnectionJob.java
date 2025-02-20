@@ -48,16 +48,19 @@ import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.common.Tra
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.projects.GetAllProjectsParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.projects.SonarProjectDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.TokenDto;
 
 public class AssistSuggestConnectionJob extends AbstractAssistCreatingConnectionJob {
   private final Map<String, List<ProjectSuggestionDto>> projectMapping;
+  private final String sonarCloudRegion;
 
   public AssistSuggestConnectionJob(Either<String, String> serverUrlOrOrganization,
-    Map<String, List<ProjectSuggestionDto>> projectMapping) {
+    Map<String, List<ProjectSuggestionDto>> projectMapping, @Nullable String sonarCloudRegion) {
     super("Connected Mode suggestion for SonarQube " + (serverUrlOrOrganization.isLeft() ? "Server" : "Cloud"),
-      serverUrlOrOrganization, false, true);
+      serverUrlOrOrganization, false, true, sonarCloudRegion);
     this.projectMapping = projectMapping;
+    this.sonarCloudRegion = sonarCloudRegion;
   }
 
   @Override
@@ -105,7 +108,7 @@ public class AssistSuggestConnectionJob extends AbstractAssistCreatingConnection
         Either.forLeft(token)));
     } else {
       params = new GetAllProjectsParams(new TransientSonarCloudConnectionDto(serverUrlOrOrganization.getRight(),
-        Either.forLeft(token)));
+        Either.forLeft(token), sonarCloudRegion != null ? SonarCloudRegion.valueOf(sonarCloudRegion) : SonarCloudRegion.EU));
     }
 
     List<SonarProjectDto> sonarProjects;

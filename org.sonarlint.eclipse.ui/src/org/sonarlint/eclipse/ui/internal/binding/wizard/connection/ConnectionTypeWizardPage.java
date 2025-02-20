@@ -24,6 +24,8 @@ import org.eclipse.core.databinding.observable.value.SelectObservableValue;
 import org.eclipse.jface.databinding.wizard.WizardPageSupport;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -75,6 +77,44 @@ public class ConnectionTypeWizardPage extends WizardPage {
     sonarQubeLabel.setText("An Open-source, self-managed tool that easily integrates into the developers' "
       + "CI/CD pipeline and DevOps platform to systematically help developers and organizations deliver Clean Code.");
     sonarQubeLabel.setLayoutData(gd);
+    
+    var sonarQubeCloudRegionRadioButtonGroup = new Composite(radioButtonGroupContainer, SWT.NONE);
+    var sonarQubeCloudRegionRadioButtonGroupLayout = new GridLayout();
+    sonarQubeCloudRegionRadioButtonGroupLayout.numColumns = 1;
+    sonarQubeCloudRegionRadioButtonGroup.setLayout(sonarQubeCloudRegionRadioButtonGroupLayout);
+    sonarQubeCloudRegionRadioButtonGroup.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false, 2, 1));
+    var euRegionRadioSelector = new Button(sonarQubeCloudRegionRadioButtonGroup, SWT.RADIO);
+    euRegionRadioSelector.setText("EU - sonarcloud.io");
+    var usRegionRadioSelector = new Button(sonarQubeCloudRegionRadioButtonGroup, SWT.RADIO);
+    usRegionRadioSelector.setText("US - us.sonarcloud.io");
+    
+    sonarCloudButton.addSelectionListener(new SelectionListener() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        euRegionRadioSelector.setEnabled(true);
+        usRegionRadioSelector.setEnabled(true);
+        
+      }
+      
+      @Override
+      public void widgetDefaultSelected(SelectionEvent e) {
+        // No-op
+      }
+    });
+    
+    // Disable region selector buttons for SonarQube Server
+    sonarQubeButton.addSelectionListener(new SelectionListener() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        euRegionRadioSelector.setEnabled(false);
+        usRegionRadioSelector.setEnabled(false);
+      }
+      
+      @Override
+      public void widgetDefaultSelected(SelectionEvent e) {
+        // No-op
+      }
+    });
 
     var comparisonLabel = new Link(radioButtonGroupContainer, SWT.WRAP);
     comparisonLabel.setText("Explore SonarQube Cloud with our <a>free tier</a>.");
@@ -83,11 +123,20 @@ public class ConnectionTypeWizardPage extends WizardPage {
 
     var sonarCloudSelection = WidgetPropertiesCompat.buttonSelection().observe(sonarCloudButton);
     var sonarQubeSelection = WidgetPropertiesCompat.buttonSelection().observe(sonarQubeButton);
-    var selectObservable = new SelectObservableValue<>(ServerConnectionModel.ConnectionType.class);
-    selectObservable.addOption(ServerConnectionModel.ConnectionType.SONARCLOUD, sonarCloudSelection);
-    selectObservable.addOption(ServerConnectionModel.ConnectionType.ONPREMISE, sonarQubeSelection);
+    var sonarCloudRegionSelectionEU = WidgetPropertiesCompat.buttonSelection().observe(euRegionRadioSelector);
+    var sonarCloudRegionSelectionUS = WidgetPropertiesCompat.buttonSelection().observe(usRegionRadioSelector);
+    
+    var connectionTypeSelectObservable = new SelectObservableValue<>(ServerConnectionModel.ConnectionType.class);
+    connectionTypeSelectObservable.addOption(ServerConnectionModel.ConnectionType.SONARCLOUD, sonarCloudSelection);
+    connectionTypeSelectObservable.addOption(ServerConnectionModel.ConnectionType.ONPREMISE, sonarQubeSelection);
+    
+    var sonarCloudRegionSelectObservable = new SelectObservableValue<>(ServerConnectionModel.SonarCloudRegion.class);
+    sonarCloudRegionSelectObservable.addOption(ServerConnectionModel.SonarCloudRegion.EU, sonarCloudRegionSelectionEU);
+    sonarCloudRegionSelectObservable.addOption(ServerConnectionModel.SonarCloudRegion.US, sonarCloudRegionSelectionUS);
+    
     var dataBindingContext = new DataBindingContext();
-    dataBindingContext.bindValue(selectObservable, PojoPropertiesCompat.value(ServerConnectionModel.PROPERTY_CONNECTION_TYPE).observe(model));
+    dataBindingContext.bindValue(connectionTypeSelectObservable, PojoPropertiesCompat.value(ServerConnectionModel.PROPERTY_CONNECTION_TYPE).observe(model));
+    dataBindingContext.bindValue(sonarCloudRegionSelectObservable, PojoPropertiesCompat.value(ServerConnectionModel.PROPERTY_SONARCLOUD_REGION).observe(model));
 
     WizardPageSupport.create(this, dataBindingContext);
 
