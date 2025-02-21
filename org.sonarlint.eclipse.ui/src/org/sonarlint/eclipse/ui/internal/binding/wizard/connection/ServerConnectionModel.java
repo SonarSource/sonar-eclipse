@@ -91,9 +91,11 @@ public class ServerConnectionModel extends ModelObject {
     this.fromConnectionSuggestion = false;
     this.connectionId = connection.getId();
     this.serverUrl = connection.getHost();
-    this.connectionType = SonarLintUtils.getSonarCloudUrl().equals(serverUrl) ? ConnectionType.SONARCLOUD : ConnectionType.ONPREMISE;
     this.organization = connection.getOrganization();
-    this.sonarCloudRegion = connection.getSonarCloudRegion() != null ? SonarCloudRegion.valueOf(connection.getSonarCloudRegion()) : SonarCloudRegion.EU;
+    this.sonarCloudRegion = connection.getSonarCloudRegion() != null ?
+      SonarCloudRegion.valueOf(connection.getSonarCloudRegion()) : SonarCloudRegion.EU;
+    this.connectionType = SonarLintUtils.getSonarCloudUrl(sonarCloudRegion.name()).equals(serverUrl) ?
+      ConnectionType.SONARCLOUD : ConnectionType.ONPREMISE;
     if (connection.hasAuth()) {
       try {
         this.username = ConnectionManager.getToken(connection);
