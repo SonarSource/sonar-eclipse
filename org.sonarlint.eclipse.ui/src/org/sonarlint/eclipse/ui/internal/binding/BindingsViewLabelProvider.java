@@ -32,6 +32,7 @@ import org.sonarlint.eclipse.core.internal.utils.StringUtils;
 import org.sonarlint.eclipse.core.resource.ISonarLintProject;
 import org.sonarlint.eclipse.ui.internal.SonarLintImages;
 import org.sonarlint.eclipse.ui.internal.SonarLintUiPlugin;
+import org.sonarlint.eclipse.ui.internal.util.DogfoodingUtils;
 
 public class BindingsViewLabelProvider extends BaseCellLabelProvider {
 
@@ -88,7 +89,9 @@ public class BindingsViewLabelProvider extends BaseCellLabelProvider {
   private static String getRegionPrefix(ConnectionFacade connection) {
     var allConnections = SonarLintCorePlugin.getConnectionManager().getConnections();
     var sonarQubeCloudConnectionCount = allConnections.stream().filter(c -> c.isSonarCloud()).collect(Collectors.toList()).size();
-    return connection.isSonarCloud() && sonarQubeCloudConnectionCount > 1 ? String.format("[%s] ", connection.getSonarCloudRegion()) : "";
+    return DogfoodingUtils.isDogfoodingEnvironment() &&
+      connection.isSonarCloud() &&
+      sonarQubeCloudConnectionCount > 1 ? String.format("[%s] ", connection.getSonarCloudRegion()) : "";
   }
 
 }
