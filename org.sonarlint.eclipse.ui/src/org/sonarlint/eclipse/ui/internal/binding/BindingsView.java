@@ -245,6 +245,7 @@ public class BindingsView extends CommonNavigator {
       public void connectionAdded(ConnectionFacade facade) {
         addConnection(facade);
         facade.addConnectionListener(connectionListener);
+        refreshAllConnections();
       }
 
       @Override
@@ -256,6 +257,7 @@ public class BindingsView extends CommonNavigator {
       public void connectionRemoved(ConnectionFacade facade) {
         removeConnection(facade);
         facade.removeConnectionListener(connectionListener);
+        refreshAllConnections();
       }
     };
     SonarLintCorePlugin.getConnectionManager().addConnectionManagerListener(connectionResourceListener);
@@ -306,6 +308,11 @@ public class BindingsView extends CommonNavigator {
       }
     };
     ResourcesPlugin.getWorkspace().addResourceChangeListener(projectListener);
+  }
+  
+  private void refreshAllConnections() {
+    var allConnections = SonarLintCorePlugin.getConnectionManager().getConnections();
+    allConnections.stream().filter(c -> c.isSonarCloud()).forEach(this::refreshConnectionContent);
   }
 
   private void refreshView() {

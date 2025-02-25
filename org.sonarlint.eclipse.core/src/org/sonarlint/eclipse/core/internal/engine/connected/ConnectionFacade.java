@@ -42,6 +42,7 @@ import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.common.Tra
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.common.TransientSonarQubeConnectionDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.connection.projects.SonarProjectDto;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
+import org.sonarsource.sonarlint.core.rpc.protocol.common.SonarCloudRegion;
 import org.sonarsource.sonarlint.core.rpc.protocol.common.TokenDto;
 
 import static java.util.stream.Collectors.toList;
@@ -58,6 +59,8 @@ public class ConnectionFacade {
   private final List<IConnectionStateListener> facadeListeners = new ArrayList<>();
   private boolean notificationsDisabled;
   private final Map<String, SonarProjectDto> cachedSonarProjectsByKey = new ConcurrentHashMap<>();
+  @Nullable
+  private String sonarCloudRegion;
 
   ConnectionFacade(String id) {
     this.id = id;
@@ -78,6 +81,16 @@ public class ConnectionFacade {
    */
   public String getId() {
     return id;
+  }
+  
+  @Nullable
+  public String getSonarCloudRegion() {
+    return sonarCloudRegion;
+  }
+  
+  public ConnectionFacade setSonarCloudRegion(@Nullable String region) {
+    this.sonarCloudRegion = region;
+    return this;
   }
 
   /**
@@ -252,7 +265,7 @@ public class ConnectionFacade {
   }
 
   public boolean isSonarCloud() {
-    return SonarLintUtils.getSonarCloudUrl().equals(this.host);
+    return SonarLintUtils.getSonarCloudUrl(getSonarCloudRegion()).equals(this.host);
   }
 
   public boolean areNotificationsDisabled() {
@@ -266,7 +279,8 @@ public class ConnectionFacade {
 
   public Either<TransientSonarQubeConnectionDto, TransientSonarCloudConnectionDto> toTransientDto() {
     if (isSonarCloud()) {
-      return Either.forRight(new TransientSonarCloudConnectionDto(getOrganization(), Either.forLeft(getCredentials())));
+      return Either.forRight(new TransientSonarCloudConnectionDto(getOrganization(), Either.forLeft(getCredentials()),
+        getSonarCloudRegion() != null ? SonarCloudRegion.valueOf(getSonarCloudRegion()) : SonarCloudRegion.EU));
     } else {
       return Either.forLeft(new TransientSonarQubeConnectionDto(getHost(), Either.forLeft(getCredentials())));
     }

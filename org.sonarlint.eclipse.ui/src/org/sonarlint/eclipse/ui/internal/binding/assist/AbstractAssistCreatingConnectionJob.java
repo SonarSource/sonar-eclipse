@@ -38,10 +38,12 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
   protected String connectionId;
   @Nullable
   protected String username;
+  @Nullable
+  protected final String sonarCloudRegion;
 
   /** Assistance either to SonarQube / SonarCloud, can be coming from Connection Suggestion! */
   protected AbstractAssistCreatingConnectionJob(String title, Either<String, String> serverUrlOrOrganization,
-    boolean automaticSetup, boolean fromConnectionSuggestion) {
+    boolean automaticSetup, boolean fromConnectionSuggestion, @Nullable String sonarCloudRegion) {
     super(title);
     // We don't want to have this job visible to the user, as there should be a dialog anyway
     setSystem(true);
@@ -49,6 +51,7 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
     this.serverUrlOrOrganization = serverUrlOrOrganization;
     this.automaticSetUp = automaticSetup;
     this.fromConnectionSuggestion = fromConnectionSuggestion;
+    this.sonarCloudRegion = sonarCloudRegion;
   }
 
   @Override
@@ -73,6 +76,7 @@ public abstract class AbstractAssistCreatingConnectionJob extends UIJob {
       model.setServerUrl(serverUrlOrOrganization.getLeft());
     } else {
       model.setOrganization(serverUrlOrOrganization.getRight());
+      model.setSonarCloudRegion(ServerConnectionModel.SonarCloudRegion.valueOf(sonarCloudRegion));
     }
 
     if (fromConnectionSuggestion) {

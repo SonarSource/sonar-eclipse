@@ -19,17 +19,20 @@
  */
 package org.sonarlint.eclipse.ui.internal.binding;
 
+import java.util.stream.Collectors;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE.SharedImages;
+import org.sonarlint.eclipse.core.internal.SonarLintCorePlugin;
 import org.sonarlint.eclipse.core.internal.engine.connected.ConnectionFacade;
 import org.sonarlint.eclipse.core.internal.engine.connected.SonarProject;
 import org.sonarlint.eclipse.core.internal.utils.StringUtils;
 import org.sonarlint.eclipse.core.resource.ISonarLintProject;
 import org.sonarlint.eclipse.ui.internal.SonarLintImages;
 import org.sonarlint.eclipse.ui.internal.SonarLintUiPlugin;
+import org.sonarlint.eclipse.ui.internal.util.DogfoodingUtils;
 
 public class BindingsViewLabelProvider extends BaseCellLabelProvider {
 
@@ -37,7 +40,8 @@ public class BindingsViewLabelProvider extends BaseCellLabelProvider {
   public String getText(Object element) {
     if (element instanceof ConnectionFacade) {
       var connection = (ConnectionFacade) element;
-      return StringUtils.defaultString(connection.getId());
+      var regionPrefix = getRegionPrefix(connection);
+      return regionPrefix.concat(StringUtils.defaultString(connection.getId()));
     }
     if (element instanceof SonarProject) {
       return ((SonarProject) element).getName();
@@ -80,6 +84,14 @@ public class BindingsViewLabelProvider extends BaseCellLabelProvider {
   public String getColumnText(Object element, int index) {
     // Left blank since the CNF doesn't support this
     return null;
+  }
+  
+  private static String getRegionPrefix(ConnectionFacade connection) {
+    var allConnections = SonarLintCorePlugin.getConnectionManager().getConnections();
+    var sonarQubeCloudConnectionCount = allConnections.stream().filter(c -> c.isSonarCloud()).collect(Collectors.toList()).size();
+    return DogfoodingUtils.isDogfoodingEnvironment() &&
+      connection.isSonarCloud() &&
+      sonarQubeCloudConnectionCount > 1 ? String.format("[%s] ", StringUtils.isNotBlank(connection.getSonarCloudRegion()) ? connection.getSonarCloudRegion() : "EU") : "";
   }
 
 }

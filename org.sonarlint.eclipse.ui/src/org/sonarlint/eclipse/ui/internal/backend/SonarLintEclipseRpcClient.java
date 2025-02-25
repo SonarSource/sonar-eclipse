@@ -170,12 +170,14 @@ public class SonarLintEclipseRpcClient extends SonarLintEclipseHeadlessRpcClient
       } else {
         serverUrlOrOrganization = Either.forRight(connectionParams.getRight().getOrganizationKey());
       }
+      
+      var region = connectionParams.isRight() ? connectionParams.getRight().getRegion().name() : null;
 
       SonarLintLogger.get().debug("Assist creating a new connection...");
       if (params.getTokenName() != null && params.getTokenValue() != null) {
-        job = new AssistCreatingAutomaticConnectionJob(serverUrlOrOrganization, params.getTokenValue());
+        job = new AssistCreatingAutomaticConnectionJob(serverUrlOrOrganization, params.getTokenValue(), region);
       } else {
-        job = new AssistCreatingManualConnectionJob(serverUrlOrOrganization);
+        job = new AssistCreatingManualConnectionJob(serverUrlOrOrganization, region);
       }
 
       job.schedule();
@@ -433,6 +435,7 @@ public class SonarLintEclipseRpcClient extends SonarLintEclipseHeadlessRpcClient
     }
 
     var organizationBasedConnections = new HashMap<String, HashMap<String, List<ProjectSuggestionDto>>>();
+    var regionsByOrganization = new HashMap<String, String>();
     var serverUrlBasedConnections = new HashMap<String, HashMap<String, List<ProjectSuggestionDto>>>();
     var multipleSuggestions = new HashMap<ISonarLintProject, List<ConnectionSuggestionDto>>();
 
@@ -468,9 +471,11 @@ public class SonarLintEclipseRpcClient extends SonarLintEclipseHeadlessRpcClient
       } else {
         var suggestion = eitherSuggestion.getRight();
         var organization = suggestion.getOrganization();
+        var region = suggestion.getRegion().name();
         var projectKey = suggestion.getProjectKey();
 
         organizationBasedConnections.putIfAbsent(organization, new HashMap<>());
+        regionsByOrganization.putIfAbsent(organization, region);
 
         var sonarProjects = organizationBasedConnections.get(organization);
         sonarProjects.putIfAbsent(projectKey, new ArrayList<>());
@@ -484,13 +489,13 @@ public class SonarLintEclipseRpcClient extends SonarLintEclipseHeadlessRpcClient
       // for all SonarCloud organizations display one notification each (so only one connection creation will be done
       // per organization)
       for (var entry : organizationBasedConnections.entrySet()) {
-        var dialog = new SuggestConnectionPopup(Either.forRight(entry.getKey()), entry.getValue());
+        var dialog = new SuggestConnectionPopup(Either.forRight(entry.getKey()), entry.getValue(), regionsByOrganization.get(entry.getKey()));
         dialog.open();
       }
 
       // for all SonarQube URLs display one notification each (so only one connection creation will be done per URL)
       for (var entry : serverUrlBasedConnections.entrySet()) {
-        var dialog = new SuggestConnectionPopup(Either.forLeft(entry.getKey()), entry.getValue());
+        var dialog = new SuggestConnectionPopup(Either.forLeft(entry.getKey()), entry.getValue(), null);
         dialog.open();
       }
 

@@ -55,6 +55,7 @@ public class ConnectionManager {
   static final String AUTH_ATTRIBUTE = "auth";
   static final String URL_ATTRIBUTE = "url";
   static final String ORG_ATTRIBUTE = "org";
+  static final String REGION_ATTRIBUTE = "region";
 
   // Even though this now storing only the token, we cannot rename the attribute as updating from
   // previous versions would not work anymore - keep compatibility!
@@ -248,6 +249,7 @@ public class ConnectionManager {
     update(facade,
       url,
       connectionNode.get(ORG_ATTRIBUTE, null),
+      connectionNode.get(REGION_ATTRIBUTE, null),
       connectionNode.getBoolean(AUTH_ATTRIBUTE, false),
       connectionNode.getBoolean(NOTIFICATIONS_DISABLED_ATTRIBUTE, false));
   }
@@ -391,7 +393,7 @@ public class ConnectionManager {
       credentialsChanged = storeCredentials(facade, token);
     }
     var connectionToUpdate = facadesByConnectionId.get(facade.getId());
-    update(connectionToUpdate, facade.getHost(), facade.getOrganization(), facade.hasAuth(), facade.areNotificationsDisabled());
+    update(connectionToUpdate, facade.getHost(), facade.getOrganization(), facade.getSonarCloudRegion(), facade.hasAuth(), facade.areNotificationsDisabled());
 
     fireConnectionEvent(connectionToUpdate, EVENT_CHANGED);
     if (credentialsChanged) {
@@ -412,8 +414,12 @@ public class ConnectionManager {
       connectionNode.put(URL_ATTRIBUTE, facade.getHost());
       if (StringUtils.isNotBlank(facade.getOrganization())) {
         connectionNode.put(ORG_ATTRIBUTE, facade.getOrganization());
+        if (StringUtils.isNotBlank(facade.getSonarCloudRegion())) {
+          connectionNode.put(REGION_ATTRIBUTE, facade.getSonarCloudRegion());
+        }
       } else {
         connectionNode.remove(ORG_ATTRIBUTE);
+        connectionNode.remove(REGION_ATTRIBUTE);
       }
       connectionNode.putBoolean(AUTH_ATTRIBUTE, facade.hasAuth());
       if (facade.areNotificationsDisabled()) {
@@ -465,13 +471,15 @@ public class ConnectionManager {
     return null;
   }
 
-  public ConnectionFacade create(String id, String url, @Nullable String organization, String token, boolean notificationsEnabled) {
-    return update(new ConnectionFacade(id), url, organization, StringUtils.isNotBlank(token), notificationsEnabled);
+  public ConnectionFacade create(String id, String url, @Nullable String organization, @Nullable String sonarCloudRegion, String token, boolean notificationsEnabled) {
+    return update(new ConnectionFacade(id), url, organization, sonarCloudRegion, StringUtils.isNotBlank(token), notificationsEnabled);
   }
 
-  private static ConnectionFacade update(ConnectionFacade facade, String url, @Nullable String organization, boolean hasAuth, boolean notificationsDisabled) {
+  private static ConnectionFacade update(ConnectionFacade facade, String url, @Nullable String organization,
+    @Nullable String sonarCloudRegion, boolean hasAuth, boolean notificationsDisabled) {
     return facade.setHost(url)
       .setOrganization(organization)
+      .setSonarCloudRegion(sonarCloudRegion)
       .setHasAuth(hasAuth)
       .setNotificationsDisabled(notificationsDisabled);
   }

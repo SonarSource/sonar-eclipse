@@ -21,6 +21,7 @@ package org.sonarlint.eclipse.ui.internal.popup;
 
 import java.util.List;
 import java.util.Map;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.sonarlint.eclipse.core.internal.preferences.SonarLintGlobalConfiguration;
@@ -38,11 +39,14 @@ import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
 public class SuggestConnectionPopup extends AbstractSonarLintPopup {
   private final Either<String, String> serverUrlOrOrganization;
   private final Map<String, List<ProjectSuggestionDto>> projectMapping;
+  @Nullable
+  private final String sonarCloudRegion;
 
   public SuggestConnectionPopup(Either<String, String> serverUrlOrOrganization,
-    Map<String, List<ProjectSuggestionDto>> projectMapping) {
+    Map<String, List<ProjectSuggestionDto>> projectMapping, @Nullable String sonarCloudRegion) {
     this.serverUrlOrOrganization = serverUrlOrOrganization;
     this.projectMapping = projectMapping;
+    this.sonarCloudRegion = sonarCloudRegion;
   }
 
   @Override
@@ -104,7 +108,7 @@ public class SuggestConnectionPopup extends AbstractSonarLintPopup {
 
     addLinkWithTooltip("Connect", "Connect to " + (serverUrlOrOrganization.isLeft() ? "server" : "organization"),
       e -> {
-        var job = new AssistSuggestConnectionJob(serverUrlOrOrganization, projectMapping);
+        var job = new AssistSuggestConnectionJob(serverUrlOrOrganization, projectMapping, sonarCloudRegion);
         job.schedule();
 
         close();

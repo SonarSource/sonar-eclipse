@@ -28,8 +28,8 @@ import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
 public class AssistCreatingAutomaticConnectionJob extends AbstractAssistCreatingConnectionJob {
   private final String tokenValue;
 
-  public AssistCreatingAutomaticConnectionJob(Either<String, String> serverUrlOrOrganization, String tokenValue) {
-    super("Assist automatic creation of Connected Mode", serverUrlOrOrganization, true, false);
+  public AssistCreatingAutomaticConnectionJob(Either<String, String> serverUrlOrOrganization, String tokenValue, @Nullable String sonarCloudRegion) {
+    super("Assist automatic creation of Connected Mode", serverUrlOrOrganization, true, false, sonarCloudRegion);
     this.tokenValue = tokenValue;
   }
 
@@ -37,7 +37,7 @@ public class AssistCreatingAutomaticConnectionJob extends AbstractAssistCreating
   @Nullable
   protected ConnectionFacade createConnection(ServerConnectionModel model) {
     var connection = SonarLintCorePlugin.getConnectionManager().create(model.getConnectionId(), model.getServerUrl(),
-      model.getOrganization(), tokenValue, model.getNotificationsDisabled());
+      model.getOrganization(), model.getSonarCloudRegion().name(), tokenValue, model.getNotificationsDisabled());
     SonarLintCorePlugin.getConnectionManager().addConnection(connection, tokenValue);
     return connection;
   }
