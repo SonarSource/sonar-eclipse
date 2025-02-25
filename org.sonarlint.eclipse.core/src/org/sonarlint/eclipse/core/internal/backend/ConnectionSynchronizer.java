@@ -70,7 +70,10 @@ class ConnectionSynchronizer implements IConnectionManagerListener {
   static List<SonarCloudConnectionConfigurationDto> buildScConnectionDtos() {
     return SonarLintCorePlugin.getConnectionManager().getConnections().stream()
       .filter(ConnectionFacade::isSonarCloud)
-      .map(c -> new SonarCloudConnectionConfigurationDto(c.getId(), c.getOrganization(), SonarCloudRegion.valueOf(c.getSonarCloudRegion()), c.areNotificationsDisabled()))
+      .map(c -> {
+        var region = c.getSonarCloudRegion() != null ? c.getSonarCloudRegion() : "EU";
+        return new SonarCloudConnectionConfigurationDto(c.getId(), c.getOrganization(), SonarCloudRegion.valueOf(region), c.areNotificationsDisabled());
+      })
       .collect(toList());
   }
 }

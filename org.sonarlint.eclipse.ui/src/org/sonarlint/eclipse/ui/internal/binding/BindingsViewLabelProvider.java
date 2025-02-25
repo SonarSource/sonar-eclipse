@@ -91,7 +91,7 @@ public class BindingsViewLabelProvider extends BaseCellLabelProvider {
     var sonarQubeCloudConnectionCount = allConnections.stream().filter(c -> c.isSonarCloud()).collect(Collectors.toList()).size();
     return DogfoodingUtils.isDogfoodingEnvironment() &&
       connection.isSonarCloud() &&
-      sonarQubeCloudConnectionCount > 1 ? String.format("[%s] ", connection.getSonarCloudRegion()) : "";
+      sonarQubeCloudConnectionCount > 1 ? String.format("[%s] ", StringUtils.isNotBlank(connection.getSonarCloudRegion()) ? connection.getSonarCloudRegion() : "EU") : "";
   }
 
 }
