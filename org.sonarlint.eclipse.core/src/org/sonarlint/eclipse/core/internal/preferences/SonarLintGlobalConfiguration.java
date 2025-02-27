@@ -77,6 +77,7 @@ public class SonarLintGlobalConfiguration {
   public static final int PREF_MARKER_SEVERITY_DEFAULT = IMarker.SEVERITY_INFO;
   public static final String PREF_ISSUE_INCLUDE_RESOLVED = "allIssuesIncludingResolved"; //$NON-NLS-1$
   public static final String PREF_ISSUE_ONLY_NEW_CODE = "onlyIssuesNewCode"; //$NON-NLS-1$
+  public static final String PREF_SHOW_REGION_SELECTOR = "showRegionSelector"; //$NON-NLS-1S
   public static final String PREF_EXTRA_ARGS = "extraArgs"; //$NON-NLS-1$
   public static final String PREF_FILE_EXCLUSIONS = "fileExclusions"; //$NON-NLS-1$
   public static final String PREF_RULES_CONFIG = "rulesConfig"; //$NON-NLS-1$
@@ -156,6 +157,10 @@ public class SonarLintGlobalConfiguration {
 
   public static int getMarkerSeverity() {
     return Platform.getPreferencesService().getInt(SonarLintCorePlugin.UI_PLUGIN_ID, PREF_MARKER_SEVERITY, PREF_MARKER_SEVERITY_DEFAULT, null);
+  }
+  
+  public static boolean shouldShowRegionSelection() {
+    return getPreferenceBoolean(PREF_SHOW_REGION_SELECTOR);
   }
 
   public static List<SonarLintProperty> getExtraPropertiesForLocalAnalysis(ISonarLintProject project) {

@@ -114,6 +114,12 @@ public class SonarLintPreferencePage extends FieldEditorPreferencePage implement
     issuePeriodLabel.setLayoutData(labelLayoutData);
     issuePeriodLabel.addListener(SWT.Selection,
       e -> BrowserUtils.openExternalBrowser(SonarLintDocumentation.CLEAN_AS_YOU_CODE, e.display));
+    
+    PlatformUtils.createHorizontalSpacer(getFieldEditorParent(), 1);
+
+    addField(new BooleanFieldEditor(SonarLintGlobalConfiguration.PREF_SHOW_REGION_SELECTOR,
+      "(Early Access) Show region selection for SonarQube Cloud",
+      getFieldEditorParent()));
 
     PlatformUtils.createHorizontalSpacer(getFieldEditorParent(), 1);
 
