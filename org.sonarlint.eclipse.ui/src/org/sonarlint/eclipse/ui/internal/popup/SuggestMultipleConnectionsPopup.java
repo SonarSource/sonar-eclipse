@@ -100,6 +100,7 @@ public class SuggestMultipleConnectionsPopup extends AbstractSonarLintPopup {
       var projectKey = isSonarQube
         ? suggestion.getConnectionSuggestion().getLeft().getProjectKey()
         : suggestion.getConnectionSuggestion().getRight().getProjectKey();
+      var region = isSonarQube ? null : suggestion.getConnectionSuggestion().getRight().getRegion().name();
 
       Either<String, String> serverUrlOrOrganization;
       if (isSonarQube) {
@@ -111,7 +112,7 @@ public class SuggestMultipleConnectionsPopup extends AbstractSonarLintPopup {
       var projectMapping = new HashMap<String, List<ProjectSuggestionDto>>();
       projectMapping.put(projectKey, List.of(new ProjectSuggestionDto(project, isFromSharedConnectedMode)));
 
-      var job = new AssistSuggestConnectionJob(serverUrlOrOrganization, projectMapping);
+      var job = new AssistSuggestConnectionJob(serverUrlOrOrganization, projectMapping, region);
       job.schedule();
     });
 

@@ -60,7 +60,7 @@ public class ConnectedEngineFacadeManagerTest {
     assertThat(ROOT.nodeExists(PREF_CONNECTIONS)).isFalse();
     assertThat(ROOT_SECURE.nodeExists(PREF_CONNECTIONS)).isFalse();
     var id = "foo/bar";
-    var connection = manager.create(id, "http://foo", "bar", "token", false);
+    var connection = manager.create(id, "http://foo", "bar", "EU", "token", false);
     manager.addConnection(connection, "token");
     assertThat(manager.getConnections()).containsExactly(connection);
     assertThat(manager.findById(id)).contains(connection);
@@ -74,7 +74,7 @@ public class ConnectedEngineFacadeManagerTest {
     assertThat(ROOT.node(PREF_CONNECTIONS).node("foo%2Fbar").get(ORG_ATTRIBUTE, null)).isEqualTo("bar");
     assertThat(ROOT_SECURE.node(PREF_CONNECTIONS).node("foo%2Fbar").get(TOKEN_ATTRIBUTE, null)).isEqualTo("token");
 
-    var connectionUpdated = manager.create(id, "http://foo2", "bar2", "token2", false);
+    var connectionUpdated = manager.create(id, "http://foo2", "bar2", "EU", "token2", false);
     try {
       manager.addConnection(connectionUpdated, "token2");
       fail("Expected exception");
@@ -114,7 +114,7 @@ public class ConnectedEngineFacadeManagerTest {
     var iServer = manager.findById("default").get();
     assertThat(iServer.getId()).isEqualTo("default");
 
-    manager.updateConnection(manager.create("default", "http://foo2", "bar2", "toto", false), "toto");
+    manager.updateConnection(manager.create("default", "http://foo2", "bar2", "US", "toto", false), "toto");
     iServer = manager.findById("default").get();
     assertThat(iServer.getId()).isEqualTo("default");
     assertThat(iServer.getHost()).isEqualTo("http://foo2");
@@ -138,7 +138,7 @@ public class ConnectedEngineFacadeManagerTest {
     removed.clear();
 
     var id = "foo/bar";
-    var newServer = manager.create(id, "http://foo", "bar", "token", false);
+    var newServer = manager.create(id, "http://foo", "bar", "EU", "token", false);
     manager.addConnection(newServer, "token");
     assertThat(removed).isEmpty();
     assertThat(changed).isEmpty();
@@ -146,7 +146,7 @@ public class ConnectedEngineFacadeManagerTest {
 
     added.clear();
 
-    var connectionUpdated = manager.create(id, "http://foo2", "bar2", "token2", false);
+    var connectionUpdated = manager.create(id, "http://foo2", "bar2", "US", "token2", false);
     manager.updateConnection(connectionUpdated, "token2");
     assertThat(removed).isEmpty();
     assertThat(changed).containsExactly(connectionUpdated);
@@ -242,7 +242,7 @@ public class ConnectedEngineFacadeManagerTest {
 
   @Test
   public void should_ignore_case_for_scheme_and_host_when_finding_connection() {
-    var connection = manager.create("ID", "http://foo", "bar", "token", false);
+    var connection = manager.create("ID", "http://foo", "bar", "EU", "token", false);
     manager.addConnection(connection, "token");
 
     var facades = manager.findByUrl("HTTP://FOO");

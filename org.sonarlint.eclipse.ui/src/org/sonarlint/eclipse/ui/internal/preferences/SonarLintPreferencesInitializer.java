@@ -40,6 +40,7 @@ public class SonarLintPreferencesInitializer extends AbstractPreferenceInitializ
     node.putBoolean(SonarLintGlobalConfiguration.PREF_ISSUE_ONLY_NEW_CODE, false);
     node.put(SonarLintGlobalConfiguration.PREF_EXTRA_ARGS, SonarLintGlobalConfiguration.PREF_DEFAULT);
     node.put(SonarLintGlobalConfiguration.PREF_TEST_FILE_GLOB_PATTERNS, SonarLintGlobalConfiguration.PREF_TEST_FILE_GLOB_PATTERNS_DEFAULT);
+    node.putBoolean(SonarLintGlobalConfiguration.PREF_SHOW_REGION_SELECTOR, false);
   }
 
 }

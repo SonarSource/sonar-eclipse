@@ -28,8 +28,8 @@ import org.sonarlint.eclipse.ui.internal.binding.wizard.connection.ServerConnect
 import org.sonarsource.sonarlint.core.rpc.protocol.common.Either;
 
 public class AssistCreatingManualConnectionJob extends AbstractAssistCreatingConnectionJob {
-  public AssistCreatingManualConnectionJob(Either<String, String> serverUrlOrOrganization) {
-    super("Assist manual creation of Connected Mode", serverUrlOrOrganization, false, false);
+  public AssistCreatingManualConnectionJob(Either<String, String> serverUrlOrOrganization, @Nullable String sonarCloudRegion) {
+    super("Assist manual creation of Connected Mode", serverUrlOrOrganization, false, false, sonarCloudRegion);
   }
 
   @Override
