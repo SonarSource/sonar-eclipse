@@ -171,9 +171,11 @@ public class FileSystemSynchronizer implements IResourceChangeListener {
 
     // Immediately rule out files in the VCS and files related to Node.js "metadata" / storage or Python virtual
     // environments. We don't care for these ones no matter if removed, changed, or added!
+    // INFO: We also exclude buggy Eclipse PDE files!
     if (SonarLintUtils.insideVCSFolder(fullPath)
       || SonarLintUtils.isNodeJsRelated(fullPath)
-      || SonarLintUtils.isPythonRelated(fullPath)) {
+      || SonarLintUtils.isPythonRelated(fullPath)
+      || SonarLintUtils.isIncorrectEclipsePDE(fullPath)) {
       return false;
     }
 

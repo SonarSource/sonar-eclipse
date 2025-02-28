@@ -296,6 +296,18 @@ public class SonarLintUtils {
     return satisfiesCheck;
   }
 
+  /**
+   *  On macOS/Linux Eclipse PDE while working with Maven/Tycho creates folders starting with "file:/" in every Eclipse
+   *  project that contains a `product` definition. In this folder unpacked parts of plug-ins will be saved and
+   *  therefore triggers a lot of events we don't want to react to.
+   *
+   *  @see <a href="https://sonarsource.atlassian.net/browse/SLE-1098">SLE-1098</a>
+   */
+  public static boolean isIncorrectEclipsePDE(IPath path) {
+    var osString = path.makeAbsolute().toOSString();
+    return osString.contains("/file:/");
+  }
+
   // This can also be used in sub-plug-ins!
   public static String getConfigScopeId(IProject project) {
     return project.getLocationURI().toString();
