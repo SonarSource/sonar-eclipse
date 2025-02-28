@@ -20,6 +20,7 @@
 package org.sonarlint.eclipse.core.internal.resources;
 
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Objects;
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.LocationKind;
@@ -84,10 +85,18 @@ public class DefaultSonarLintFileAdapter implements ISonarLintFile {
 
   @Override
   public Charset getCharset() {
+    String charsetName;
     try {
-      return Charset.forName(file.getCharset());
+      charsetName = file.getCharset();
     } catch (CoreException e) {
       SonarLintLogger.get().error("Unable to determine charset of file " + file, e);
+      return Charset.defaultCharset();
+    }
+
+    try {
+      return Charset.forName(charsetName);
+    } catch (UnsupportedCharsetException e) {
+      SonarLintLogger.get().debug("Unsupported charset " + charsetName + " found in file " + file, e);
       return Charset.defaultCharset();
     }
   }
